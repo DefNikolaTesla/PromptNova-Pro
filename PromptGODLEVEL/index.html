@@ -1,0 +1,2049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PromptNova Pro Ultra — Autonomous AI Prompt Engine</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#6366f1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="PromptNova Ultra" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #090a0f;
+      --bg2: #12151f;
+      --bg3: #1a1e2e;
+      --bg4: #23293d;
+      --border: #252b40;
+      --border2: #363e5c;
+      --text: #f8fafc;
+      --text2: #cbd5e1;
+      --text3: #64748b;
+      --accent: #6366f1;
+      --accent2: #818cf8;
+      --accent3: #4f46e5;
+      --cyan: #06b6d4;
+      --cyan2: #22d3ee;
+      --emerald: #10b981;
+      --purple: #a855f7;
+      --rose: #f43f5e;
+      --amber: #f59e0b;
+    }
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.14) 0%, transparent 55%),
+        radial-gradient(circle at 100% 40%, rgba(6, 182, 212, 0.07) 0%, transparent 45%),
+        radial-gradient(circle at 0% 80%, rgba(168, 85, 247, 0.07) 0%, transparent 45%);
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 16px 80px;
+      line-height: 1.5;
+    }
+    .top-glow-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--cyan2), var(--purple), var(--accent));
+      background-size: 300% 100%;
+      animation: gradientShift 6s linear infinite;
+      z-index: 100;
+    }
+    @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+    .app-header {
+      width: 100%;
+      max-width: 960px;
+      margin: 32px auto 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+    }
+    .engine-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 5px 14px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--emerald);
+      margin-bottom: 16px;
+      box-shadow: 0 0 16px rgba(16, 185, 129, 0.15);
+    }
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 8px var(--emerald);
+      animation: pulseDot 2s infinite;
+    }
+    @keyframes pulseDot { 0%, 100% { opacity: 0.4; transform: scale(0.9); } 50% { opacity: 1; transform: scale(1.15); } }
+
+    .app-title {
+      font-size: clamp(32px, 5.5vw, 56px);
+      font-weight: 900;
+      letter-spacing: -2px;
+      line-height: 1.05;
+      margin-bottom: 8px;
+    }
+    .app-title span.pro {
+      background: linear-gradient(135deg, #818cf8 0%, #c084fc 50%, #38bdf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .app-title span.ultra-badge {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #090a0f;
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      padding: 3px 8px;
+      border-radius: 6px;
+      vertical-align: middle;
+      margin-left: 6px;
+      display: inline-block;
+    }
+    .app-subtitle {
+      font-size: 14px;
+      color: var(--text3);
+      max-width: 640px;
+      font-weight: 400;
+      margin-bottom: 20px;
+    }
+
+    .tab-bar {
+      display: flex;
+      gap: 6px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      padding: 5px;
+      border-radius: 14px;
+      margin-bottom: 28px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      max-width: 620px;
+      width: 100%;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 10px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      color: var(--text3);
+      background: transparent;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .tab-btn:hover:not(.active) {
+      color: var(--text2);
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .tab-btn.active {
+      background: var(--bg4);
+      color: var(--text);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border2);
+    }
+
+    .header-actions {
+      position: absolute;
+      top: 0;
+      right: 0;
+      display: flex;
+      gap: 8px;
+    }
+    .icon-action-btn {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text3);
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.15s;
+    }
+    .icon-action-btn:hover {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+    .icon-action-btn.active {
+      color: var(--accent2);
+      border-color: var(--accent);
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 960px;
+      position: relative;
+    }
+
+    .tab-view { display: none; }
+    .tab-view.active { display: block; animation: fadeIn 0.25s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    .studio-panel {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    }
+
+    .section-label {
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--text3);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .section-label .hint {
+      font-size: 11px;
+      text-transform: none;
+      letter-spacing: normal;
+      color: var(--text3);
+      font-weight: 400;
+    }
+
+    .mode-cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 800px) { .mode-cards { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 480px) { .mode-cards { grid-template-columns: 1fr; } }
+
+    .mode-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .mode-card:hover:not(.active) {
+      border-color: var(--border2);
+      background: rgba(35, 41, 61, 0.6);
+      transform: translateY(-1px);
+    }
+    .mode-card.active {
+      border-color: var(--accent);
+      background: rgba(99, 102, 241, 0.14);
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.15);
+    }
+    .mode-card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .mode-icon { font-size: 18px; }
+    .mode-title {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--text);
+    }
+    .mode-desc {
+      font-size: 10px;
+      color: var(--text3);
+      line-height: 1.4;
+    }
+    .mode-card.active .mode-title { color: var(--accent2); }
+
+    .prompt-box-wrap {
+      position: relative;
+      margin-bottom: 24px;
+    }
+    .main-textarea {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: 14px;
+      color: var(--text);
+      padding: 18px 20px 48px;
+      font-size: 15px;
+      font-family: inherit;
+      line-height: 1.6;
+      resize: vertical;
+      min-height: 120px;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .main-textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 24px rgba(99, 102, 241, 0.2);
+    }
+    .main-textarea::placeholder { color: var(--text3); }
+    .prompt-bottom-bar {
+      position: absolute;
+      bottom: 12px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+    .prompt-bottom-bar > * { pointer-events: auto; }
+    .prompt-counter {
+      font-size: 11px;
+      color: var(--text3);
+      font-family: "Fira Code", monospace;
+    }
+    .prompt-actions-inline { display: flex; gap: 8px; }
+    .mini-action-btn {
+      background: rgba(18, 21, 31, 0.85);
+      border: 1px solid var(--border);
+      color: var(--text2);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 5px 11px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .mini-action-btn:hover {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+
+    .slider-box {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin-bottom: 22px;
+    }
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .slider-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--amber);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .slider-value-badge {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--amber);
+      background: rgba(245, 158, 11, 0.1);
+      padding: 3px 9px;
+      border-radius: 6px;
+      border: 1px solid rgba(245, 158, 11, 0.25);
+    }
+    .custom-range {
+      width: 100%;
+      height: 6px;
+      background: var(--bg4);
+      border-radius: 4px;
+      outline: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+    }
+    .custom-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--amber);
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .custom-range::-webkit-slider-thumb:hover { transform: scale(1.15); }
+    .slider-steps {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      font-size: 10px;
+      color: var(--text3);
+      font-weight: 500;
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+    @media (max-width: 640px) { .controls-grid { grid-template-columns: 1fr; } }
+
+    .control-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .control-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text3);
+    }
+    .select-wrap { position: relative; }
+    select, input.num-input {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      color: var(--text);
+      padding: 11px 14px;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      transition: border-color 0.2s;
+    }
+    select:focus, input.num-input:focus { border-color: var(--accent); }
+    .select-wrap::after {
+      content: "▾";
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text3);
+      pointer-events: none;
+      font-size: 12px;
+    }
+
+    .chip-scroll-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-bottom: 22px;
+    }
+    .chip {
+      padding: 7px 13px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg3);
+      color: var(--text2);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+    .chip:hover:not(.active) {
+      border-color: var(--border2);
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+    .chip.active {
+      border-color: var(--accent);
+      background: rgba(99, 102, 241, 0.18);
+      color: #fff;
+      box-shadow: 0 0 12px rgba(99, 102, 241, 0.2);
+    }
+
+    .collapsible-box {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin-bottom: 20px;
+      transition: all 0.2s;
+    }
+    .collapsible-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    .collapsible-title {
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .collapsible-body {
+      display: none;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+    .collapsible-box.open .collapsible-body {
+      display: block;
+      animation: fadeIn 0.2s ease-out;
+    }
+    .toggle-chevron {
+      font-size: 12px;
+      color: var(--text3);
+      transition: transform 0.2s;
+    }
+    .collapsible-box.open .toggle-chevron { transform: rotate(180deg); }
+
+    .check-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .check-label {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text2);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .check-label:hover { border-color: var(--purple); }
+    .check-label input { accent-color: var(--purple); cursor: pointer; }
+
+    .constraint-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 540px) { .constraint-cols { grid-template-columns: 1fr; } }
+    .mini-input-area {
+      width: 100%;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: var(--text);
+      font-family: inherit;
+      resize: vertical;
+      min-height: 60px;
+      outline: none;
+    }
+    .mini-input-area:focus { border-color: var(--accent); }
+
+    .primary-btn {
+      width: 100%;
+      padding: 18px 24px;
+      background: linear-gradient(135deg, var(--accent), var(--accent3));
+      border: none;
+      border-radius: 14px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 4px 24px rgba(99, 102, 241, 0.4);
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      user-select: none;
+    }
+    .primary-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 36px rgba(99, 102, 241, 0.6);
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+    }
+    .primary-btn:active { transform: translateY(0); }
+
+    .output-card {
+      display: none;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px;
+      margin-top: 28px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      animation: slideUp 0.3s ease-out;
+    }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+    .output-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .output-stats {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .stat-pill {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text2);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .stat-pill.realism {
+      color: var(--emerald);
+      border-color: rgba(16, 185, 129, 0.3);
+      background: rgba(16, 185, 129, 0.08);
+    }
+    .stat-pill.tokens {
+      color: var(--cyan2);
+      border-color: rgba(6, 182, 212, 0.3);
+      background: rgba(6, 182, 212, 0.08);
+    }
+
+    .output-toolbar { display: flex; gap: 8px; }
+    .out-action-btn {
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      color: var(--text);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .out-action-btn:hover {
+      border-color: var(--accent);
+      background: var(--bg4);
+    }
+    .out-action-btn.copied {
+      border-color: var(--emerald);
+      color: var(--emerald);
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .output-display-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--cyan);
+      border-radius: 12px;
+      padding: 22px;
+      color: #e2e8f0;
+      font-size: 14px;
+      line-height: 1.85;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+    .output-display-box.json-code {
+      font-family: "Fira Code", "SF Mono", monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #a5b4fc;
+      border-left-color: var(--purple);
+    }
+
+    .matrix-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 20px;
+    }
+    @media (max-width: 860px) { .matrix-grid { grid-template-columns: 1fr; } }
+    .matrix-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: all 0.2s;
+    }
+    .matrix-card:hover {
+      border-color: var(--border2);
+      transform: translateY(-2px);
+    }
+    .matrix-card-title {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .matrix-card-badge {
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .matrix-content {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 12px;
+      line-height: 1.7;
+      color: var(--text2);
+      max-height: 240px;
+      overflow-y: auto;
+      flex: 1;
+      white-space: pre-wrap;
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .history-item {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px;
+      transition: all 0.15s;
+    }
+    .history-item:hover { border-color: var(--border2); }
+    .history-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .history-meta {
+      display: flex;
+      gap: 8px;
+      font-size: 10.5px;
+      color: var(--text3);
+    }
+    .history-snippet {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.5;
+    }
+    .history-actions { display: flex; gap: 6px; }
+
+    .settings-box {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .footer {
+      margin-top: 60px;
+      text-align: center;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--text3);
+      text-transform: uppercase;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--bg4);
+      border: 1px solid var(--accent);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      z-index: 1000;
+      opacity: 0;
+      transition: all 0.3s;
+      pointer-events: none;
+    }
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-glow-bar"></div>
+
+<div class="container">
+
+  <header class="app-header">
+    <div class="engine-status-badge" id="engineBadge">
+      <span class="status-dot"></span>
+      <span>Autonomous Zero-API Engine Active</span>
+    </div>
+    <h1 class="app-title">PromptNova <span class="pro">Pro</span><span class="ultra-badge">Ultra</span></h1>
+    <p class="app-subtitle">Autonomous photographic & cinematic AI prompt synthesis engine. Operates 100% offline with zero external API dependencies.</p>
+
+    <div class="header-actions">
+      <button class="icon-action-btn" id="audioToggleBtn" onclick="toggleAudio()" title="Toggle Sound Effects">🔊</button>
+    </div>
+
+    <nav class="tab-bar">
+      <button class="tab-btn active" data-tab="studio" onclick="switchTab('studio')">⚡ Prompt Studio</button>
+      <button class="tab-btn" data-tab="matrix" onclick="switchTab('matrix')">🔮 3-Way Matrix</button>
+      <button class="tab-btn" data-tab="history" onclick="switchTab('history')">📜 History (<span id="historyCount">0</span>)</button>
+      <button class="tab-btn" data-tab="settings" onclick="switchTab('settings')">⚙️ Engine</button>
+    </nav>
+  </header>
+
+  <main id="tabStudio" class="tab-view active">
+    <div class="studio-panel">
+
+      <div class="section-label">
+        <span>Output Synthesis Mode</span>
+        <span class="hint">Select prompt format</span>
+      </div>
+      <div class="mode-cards" id="modeCards">
+        <div class="mode-card active" data-mode="narrative" onclick="setMode('narrative')">
+          <div class="mode-card-header">
+            <span class="mode-icon">📝</span>
+            <span class="mode-title">Narrative Realism</span>
+          </div>
+          <span class="mode-desc">850–950w seamless master photographic brief</span>
+        </div>
+        <div class="mode-card" data-mode="parameter" onclick="setMode('parameter')">
+          <div class="mode-card-header">
+            <span class="mode-icon">⚙️</span>
+            <span class="mode-title">SPP JSON Spec</span>
+          </div>
+          <span class="mode-desc">Structured parameter prompt with 25+ parameters</span>
+        </div>
+        <div class="mode-card" data-mode="engine_syntax" onclick="setMode('engine_syntax')">
+          <div class="mode-card-header">
+            <span class="mode-icon">🎯</span>
+            <span class="mode-title">Platform Tokens</span>
+          </div>
+          <span class="mode-desc">Weighted token syntax for Midjourney / FLUX</span>
+        </div>
+        <div class="mode-card" data-mode="negative" onclick="setMode('negative')">
+          <div class="mode-card-header">
+            <span class="mode-icon">🛡️</span>
+            <span class="mode-title">Negative Matrix</span>
+          </div>
+          <span class="mode-desc">Scene-aware anti-plastic & anti-CGI barriers</span>
+        </div>
+      </div>
+
+      <div class="section-label">
+        <span>Your Scene Vision</span>
+        <button class="mini-action-btn" onclick="surpriseMe()">🎲 Surprise Me / Random Inspiration</button>
+      </div>
+      <div class="prompt-box-wrap">
+        <textarea 
+          id="userPrompt" 
+          class="main-textarea" 
+          placeholder="Describe your scene (e.g., 'a tired jazz trumpeter sitting in a smoky basement club taking a break between songs')..." 
+          oninput="updatePromptCounter()"
+        ></textarea>
+        <div class="prompt-bottom-bar">
+          <span class="prompt-counter" id="promptCounter">0 chars | 0 words</span>
+          <div class="prompt-actions-inline">
+            <button class="mini-action-btn" onclick="clearPrompt()">✕ Clear</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="slider-box">
+        <div class="slider-header">
+          <span class="slider-title"><span>🔥</span> Photographic Imperfection & RAW Grittiness</span>
+          <span class="slider-value-badge" id="sliderBadge">L3: Gritty 35mm Analog</span>
+        </div>
+        <input 
+          type="range" 
+          id="rawSlider" 
+          class="custom-range" 
+          min="1" 
+          max="4" 
+          step="1" 
+          value="3" 
+          oninput="updateSliderBadge()"
+        />
+        <div class="slider-steps">
+          <span>L1: Clean Studio</span>
+          <span>L2: Natural Light</span>
+          <span>L3: Gritty 35mm Analog</span>
+          <span>L4: Brutal RAW Documentary</span>
+        </div>
+      </div>
+
+      <div class="controls-grid">
+        <div class="control-item">
+          <label class="control-label">Camera & Optical Sensor</label>
+          <div class="select-wrap">
+            <select id="cameraSelect">
+              <option value="leica_m11" selected>Leica M11 + Summilux 50mm f/1.4 ASPH</option>
+              <option value="hasselblad_x2d">Hasselblad X2D 100C + XCD 55mm f/2.5</option>
+              <option value="sony_a7rv">Sony A7R V + 85mm f/1.4 GM II</option>
+              <option value="arri_alexa">ARRI Alexa Mini LF + Cooke Anamorphic 40mm</option>
+              <option value="canon_r5">Canon EOS R5 + RF 50mm f/1.2L</option>
+              <option value="iphone16_proraw">iPhone 16 Pro Max 48MP ProRAW</option>
+              <option value="polaroid_sx70">Polaroid SX-70 Instant Vintage</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="control-item">
+          <label class="control-label">Film Stock / Color Science</label>
+          <div class="select-wrap">
+            <select id="filmSelect">
+              <option value="portra_400" selected>Kodak Portra 400 (Warm, Fine Grain)</option>
+              <option value="cinestill_800t">CineStill 800T (Tungsten, Red Halation)</option>
+              <option value="fuji_superia">Fujifilm Superia 400 (Cyan/Green Shadows)</option>
+              <option value="tri_x_400">Kodak Tri-X 400 (Classic B&W Silver Halide)</option>
+              <option value="kodachrome_64">Kodachrome 64 (Vintage 1970s Saturation)</option>
+              <option value="leica_monochrom">Leica Monochrom (Pure Luminance Sensor)</option>
+              <option value="digital_neutral">Modern High Dynamic Range Neutral</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label">
+        <span>Lighting Physics & Atmosphere</span>
+      </div>
+      <div class="chip-scroll-wrap" id="lightingChips">
+        <button class="chip active" data-val="golden_hour">Golden Hour Sidelight</button>
+        <button class="chip" data-val="blue_hour">Blue Hour Twilight</button>
+        <button class="chip" data-val="rembrandt">Rembrandt Chiaroscuro</button>
+        <button class="chip" data-val="volumetric">Volumetric Sunbeams / Dust Motes</button>
+        <button class="chip" data-val="neon_noir">Cyberpunk Neon Reflections</button>
+        <button class="chip" data-val="ambient_indoor">Mixed Ambient Indoor</button>
+        <button class="chip" data-val="candlelight">Candlelight / Flame Glow</button>
+        <button class="chip" data-val="harsh_sun">Direct Harsh Midday Street</button>
+        <button class="chip" data-val="overcast_soft">Overcast Soft Diffuser</button>
+        <button class="chip" data-val="bioluminescent">Bioluminescent Ethereal</button>
+      </div>
+
+      <div class="section-label">
+        <span>Compositional Framing & Perspective</span>
+      </div>
+      <div class="chip-scroll-wrap" id="shotChips">
+        <button class="chip active" data-val="candid_handheld">Candid Handheld (Slight 1° Tilt)</button>
+        <button class="chip" data-val="environmental_wide">Environmental Wide Shot</button>
+        <button class="chip" data-val="tight_portrait">85mm Psychological Close-up</button>
+        <button class="chip" data-val="extreme_macro">Extreme Micro Detail</button>
+        <button class="chip" data-val="low_angle_hero">Low-Angle Monumental</button>
+        <button class="chip" data-val="overhead_flatlay">Overhead 90° Flat Lay</button>
+        <button class="chip" data-val="motion_panning">Motion Panning Blur Drag</button>
+        <button class="chip" data-val="silhouette_rim">Backlit Silhouette Rim Light</button>
+        <button class="chip" data-val="ots_cinema">Over-The-Shoulder Cinematic OTS</button>
+      </div>
+
+      <div class="controls-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+        <div class="control-item">
+          <label class="control-label">Aspect Ratio</label>
+          <div class="select-wrap">
+            <select id="ratioSelect">
+              <option value="16:9" selected>16:9 Widescreen Cinema</option>
+              <option value="9:16">9:16 Vertical Mobile / Reels</option>
+              <option value="1:1">1:1 Square</option>
+              <option value="4:3">4:3 Medium Format</option>
+              <option value="3:4">3:4 Portrait</option>
+              <option value="3:2">3:2 35mm Classic</option>
+              <option value="2:3">2:3 Vertical Classic</option>
+              <option value="21:9">21:9 Ultra Anamorphic</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="control-item">
+          <label class="control-label">Target AI Engine</label>
+          <div class="select-wrap">
+            <select id="engineSelect">
+              <option value="midjourney" selected>Midjourney v6.1 (--style raw)</option>
+              <option value="flux">FLUX.1 (Dev / Schnell)</option>
+              <option value="sdxl">SDXL Masterpiece</option>
+              <option value="sd3">Stable Diffusion 3.5</option>
+              <option value="dalle3">DALL-E 3</option>
+              <option value="firefly">Adobe Firefly 3</option>
+              <option value="ideogram">Ideogram 2.0</option>
+              <option value="recraft">Recraft V3</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="control-item">
+          <label class="control-label">Seed (Deterministic)</label>
+          <div style="display: flex; gap: 6px;">
+            <input type="number" id="seedInput" class="num-input" placeholder="Optional Seed" min="0" max="9999999" />
+            <button class="icon-action-btn" onclick="randomizeSeed()" title="Roll Random Seed">🎲</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="collapsible-box" id="faceBox">
+        <div class="collapsible-header" onclick="toggleCollapsible('faceBox')">
+          <span class="collapsible-title" style="color: var(--purple);">
+            <span>👤</span> Face Reference Match Studio (Reference Photo Blueprint)
+          </span>
+          <span class="toggle-chevron">▼</span>
+        </div>
+        <div class="collapsible-body">
+          <p style="font-size: 11.5px; color: var(--text3); margin-bottom: 12px; line-height: 1.5;">
+            Instructs the AI generator to anchor and preserve specific facial features from an attached reference photo.
+          </p>
+          <div class="check-grid" id="faceChecks">
+            <label class="check-label"><input type="checkbox" value="facial_proportions" checked /> Facial Proportions</label>
+            <label class="check-label"><input type="checkbox" value="eye_anatomy" checked /> Eye Shape & Catchlights</label>
+            <label class="check-label"><input type="checkbox" value="nasal_profile" checked /> Nasal Bridge & Flare</label>
+            <label class="check-label"><input type="checkbox" value="lip_contours" checked /> Cupids Bow & Lips</label>
+            <label class="check-label"><input type="checkbox" value="jaw_mandible" checked /> Jawline & Mandible</label>
+            <label class="check-label"><input type="checkbox" value="skin_undertone" checked /> Natural Skin Undertone</label>
+            <label class="check-label"><input type="checkbox" value="asymmetry" checked /> Organic Asymmetry</label>
+            <label class="check-label"><input type="checkbox" value="hairline_parting" checked /> Hairline & Cowlick</label>
+            <label class="check-label"><input type="checkbox" value="eyebrow_arch" checked /> Eyebrow Density</label>
+            <label class="check-label"><input type="checkbox" value="micro_marks" checked /> Moles & Freckles</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="collapsible-box" id="constraintsBox">
+        <div class="collapsible-header" onclick="toggleCollapsible('constraintsBox')">
+          <span class="collapsible-title" style="color: var(--amber);">
+            <span>🛡️</span> Custom Constraints & Negative Elements
+          </span>
+          <span class="toggle-chevron">▼</span>
+        </div>
+        <div class="collapsible-body">
+          <div class="constraint-cols">
+            <div>
+              <div class="control-label" style="margin-bottom: 6px;">Must Keep (Non-negotiables)</div>
+              <textarea id="mustKeep" class="mini-input-area" placeholder="e.g., green woolen sweater, vintage silver wristwatch, rainy night background"></textarea>
+            </div>
+            <div>
+              <div class="control-label" style="margin-bottom: 6px;">Must Avoid (Aesthetic breakers)</div>
+              <textarea id="mustAvoid" class="mini-input-area" placeholder="e.g., direct eye contact, modern plastic chairs, oversaturated blue"></textarea>
+            </div>
+          </div>
+          <div style="margin-top: 10px;">
+            <div class="control-label" style="margin-bottom: 6px;">Custom Negative Tokens</div>
+            <textarea id="customNeg" class="mini-input-area" placeholder="e.g., CGI, plastic skin, airbrushed, cartoon, oversaturated, watermark, extra fingers"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <button class="primary-btn" id="synthesizeBtn" onclick="handleSynthesize()">
+        <span>✨</span>
+        <span>Synthesize Masterpiece Prompt</span>
+        <span style="font-size: 11px; opacity: 0.8; font-weight: 500;">(Instant · Zero-API)</span>
+      </button>
+
+    </div>
+
+    <div class="output-card" id="outputCard">
+      <div class="output-top">
+        <div class="output-stats">
+          <div class="stat-pill realism" id="realismScorePill">
+            <span>★</span> 99.6% Photographic Realism Index
+          </div>
+          <div class="stat-pill tokens" id="wordCountPill">
+            <span>📝</span> 890 Words
+          </div>
+          <div class="stat-pill tokens" id="tokenEstimatePill">
+            <span>⚡</span> ~1,140 Tokens
+          </div>
+          <div class="stat-pill" id="enginePill">
+            <span>🎯</span> MIDJOURNEY V6.1
+          </div>
+        </div>
+
+        <div class="output-toolbar">
+          <button class="out-action-btn" id="copyMainBtn" onclick="copyMainOutput()">
+            <span>📋</span> Copy Prompt
+          </button>
+          <button class="out-action-btn" id="saveFavoriteBtn" onclick="saveCurrentToFavorites()">
+            <span>⭐</span> Favorite
+          </button>
+          <button class="out-action-btn" onclick="exportPrompt()">
+            <span>⬇️</span> Export .txt
+          </button>
+        </div>
+      </div>
+
+      <div class="output-display-box" id="outputBox"></div>
+    </div>
+  </main>
+
+  <section id="tabMatrix" class="tab-view">
+    <div class="studio-panel">
+      <div class="section-label">
+        <span>3-Way Cinematic Variation Matrix</span>
+        <span class="hint">Synthesizes 3 radically distinct photographic interpretations</span>
+      </div>
+      <p style="font-size: 13px; color: var(--text3); margin-bottom: 16px;">
+        Takes your scene vision and projects it across three photographic paradigms simultaneously: Raw Candid Street, 35mm Vintage Analog, and Hollywood Anamorphic Cinema.
+      </p>
+      <button class="primary-btn" onclick="generateMatrix()">
+        <span>🔮</span> Generate 3 Parallel Variations
+      </button>
+
+      <div class="matrix-grid" id="matrixGrid">
+        <div class="matrix-card">
+          <div class="matrix-card-title">
+            <span>1. Raw Candid Street</span>
+            <span class="matrix-card-badge" style="background: rgba(16, 185, 129, 0.15); color: var(--emerald);">Leica M11</span>
+          </div>
+          <div class="matrix-content" id="matrixCard1">Hit 'Generate 3 Parallel Variations' to render instant variations...</div>
+          <button class="out-action-btn" onclick="copyMatrixCard(1)">📋 Copy Variation</button>
+        </div>
+
+        <div class="matrix-card">
+          <div class="matrix-card-title">
+            <span>2. 35mm Vintage Film</span>
+            <span class="matrix-card-badge" style="background: rgba(245, 158, 11, 0.15); color: var(--amber);">Portra 400</span>
+          </div>
+          <div class="matrix-content" id="matrixCard2">Hit 'Generate 3 Parallel Variations' to render instant variations...</div>
+          <button class="out-action-btn" onclick="copyMatrixCard(2)">📋 Copy Variation</button>
+        </div>
+
+        <div class="matrix-card">
+          <div class="matrix-card-title">
+            <span>3. Hollywood Anamorphic</span>
+            <span class="matrix-card-badge" style="background: rgba(168, 85, 247, 0.15); color: var(--purple);">Alexa Mini LF</span>
+          </div>
+          <div class="matrix-content" id="matrixCard3">Hit 'Generate 3 Parallel Variations' to render instant variations...</div>
+          <button class="out-action-btn" onclick="copyMatrixCard(3)">📋 Copy Variation</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tabHistory" class="tab-view">
+    <div class="studio-panel">
+      <div class="section-label">
+        <span>Prompt Archives & Favorites</span>
+        <button class="mini-action-btn" onclick="clearAllHistory()">🗑️ Clear Archive</button>
+      </div>
+      <div id="historyContainer" class="history-list">
+        <p style="color: var(--text3); font-size: 13px; text-align: center; padding: 40px 0;">No archived prompts yet. Synthesize your first prompt to store it here.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="tabSettings" class="tab-view">
+    <div class="settings-box">
+      <div class="section-label" style="color: var(--emerald);">
+        <span>⚡ Primary Engine: Autonomous Zero-API (Active)</span>
+      </div>
+      <p style="font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 16px;">
+        PromptNova Pro Ultra includes an industrial-grade procedural NLP photorealism synthesizer engine that runs <strong>entirely inside your browser</strong>. It delivers exhaustive 850–950 word camera briefs, full SPP JSON structures, and platform tokens in under 5 milliseconds with zero API keys and zero cost.
+      </p>
+
+      <div style="background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 24px;">
+        <div style="font-size: 11px; font-weight: 700; color: var(--emerald); text-transform: uppercase; margin-bottom: 6px;">✓ Zero-API Engine Guarantee</div>
+        <div style="font-size: 12px; color: var(--text3); line-height: 1.5;">
+          No credit cards, no rate limits, no third-party downtime, and complete privacy. Your inputs never leave your device.
+        </div>
+      </div>
+
+      <div class="section-label">
+        <span>Optional: External Cloud LLM Connector</span>
+      </div>
+      <p style="font-size: 12px; color: var(--text3); margin-bottom: 12px;">
+        If you prefer using an external LLM (e.g. Groq Llama-3.3 70B, OpenAI, or local Ollama), you can configure it below. If left blank or if the API is unreachable, PromptNova automatically uses the Zero-API Autonomous Engine.
+      </p>
+
+      <div class="controls-grid">
+        <div class="control-item">
+          <label class="control-label">Provider</label>
+          <div class="select-wrap">
+            <select id="cloudProvider">
+              <option value="offline">Offline Engine (Default & Recommended)</option>
+              <option value="groq">Groq (Llama-3.3 70B)</option>
+              <option value="openai">OpenAI (GPT-4o / o3-mini)</option>
+              <option value="ollama">Local Ollama (localhost:11434)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="control-item">
+          <label class="control-label">API Key (Optional)</label>
+          <input type="password" id="cloudApiKey" class="num-input" placeholder="Optional API Key (gsk_... or sk-...)" />
+        </div>
+      </div>
+
+      <div style="margin-top: 12px; display: flex; justify-content: flex-end;">
+        <button class="out-action-btn" onclick="saveCloudSettings()">💾 Save Engine Preferences</button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    PromptNova Pro Ultra · Engineered for Absolute Photorealism · 100% Offline Capable
+  </footer>
+
+</div>
+
+<div class="toast" id="toastBox">Prompt Copied to Clipboard!</div>
+
+<script>
+  let currentMode = "narrative";
+  let activeTab = "studio";
+  let audioEnabled = true;
+  let audioCtx = null;
+  let lastSynthesizedPrompt = "";
+  let promptHistory = [];
+
+  function initAudio() {
+    if (!audioCtx) {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (AudioContext) audioCtx = new AudioContext();
+    }
+  }
+  function playClick() {
+    if (!audioEnabled) return;
+    try {
+      initAudio();
+      if (!audioCtx) return;
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.04);
+      gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.04);
+    } catch(e) {}
+  }
+
+  function playSuccess() {
+    if (!audioEnabled) return;
+    try {
+      initAudio();
+      if (!audioCtx) return;
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      const now = audioCtx.currentTime;
+      [523.25, 659.25, 783.99].forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(freq, now + i * 0.05);
+        gain.gain.setValueAtTime(0.06, now + i * 0.05);
+        gain.gain.linearRampToValueAtTime(0.001, now + i * 0.05 + 0.15);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now + i * 0.05);
+        osc.stop(now + i * 0.05 + 0.15);
+      });
+    } catch(e) {}
+  }
+
+  function toggleAudio() {
+    audioEnabled = !audioEnabled;
+    const btn = document.getElementById("audioToggleBtn");
+    btn.textContent = audioEnabled ? "🔊" : "🔇";
+    btn.classList.toggle("active", audioEnabled);
+    showToast(audioEnabled ? "Audio Feedback Enabled" : "Audio Muted");
+  }
+
+  function switchTab(tabId) {
+    playClick();
+    activeTab = tabId;
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.classList.toggle("active", btn.dataset.tab === tabId);
+    });
+    document.querySelectorAll(".tab-view").forEach(view => {
+      view.classList.remove("active");
+    });
+    const target = document.getElementById("tab" + tabId.charAt(0).toUpperCase() + tabId.slice(1));
+    if (target) target.classList.add("active");
+    if (tabId === "history") renderHistory();
+  }
+
+  function setMode(mode) {
+    playClick();
+    currentMode = mode;
+    document.querySelectorAll("#modeCards .mode-card").forEach(c => {
+      c.classList.toggle("active", c.dataset.mode === mode);
+    });
+    const p = document.getElementById("userPrompt").value.trim();
+    if (p && lastSynthesizedPrompt) {
+      handleSynthesize();
+    }
+  }
+
+  function bindChips(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.addEventListener("click", e => {
+      const chip = e.target.closest(".chip");
+      if (!chip) return;
+      playClick();
+      container.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+    });
+  }
+  bindChips("lightingChips");
+  bindChips("shotChips");
+
+  function getActiveChipValue(containerId) {
+    const active = document.querySelector("#" + containerId + " .chip.active");
+    return active ? active.dataset.val : "";
+  }
+
+  function toggleCollapsible(boxId) {
+    playClick();
+    const box = document.getElementById(boxId);
+    if (box) box.classList.toggle("open");
+  }
+
+  const SLIDER_LABELS = {
+    "1": "L1: Clean Studio Pristine",
+    "2": "L2: Natural Light Authentic",
+    "3": "L3: Gritty 35mm Analog",
+    "4": "L4: Brutal RAW Documentary"
+  };
+  function updateSliderBadge() {
+    const val = document.getElementById("rawSlider").value;
+    document.getElementById("sliderBadge").textContent = SLIDER_LABELS[val] || "L3: Gritty 35mm Analog";
+  }
+
+  function randomizeSeed() {
+    playClick();
+    const seed = Math.floor(Math.random() * 9999999);
+    document.getElementById("seedInput").value = seed;
+    showToast("Generated Seed: " + seed);
+  }
+
+  function updatePromptCounter() {
+    const val = document.getElementById("userPrompt").value;
+    const chars = val.length;
+    const words = val.trim() ? val.trim().split(/\s+/).length : 0;
+    document.getElementById("promptCounter").textContent = chars + " chars | " + words + " words";
+  }
+
+  function clearPrompt() {
+    playClick();
+    document.getElementById("userPrompt").value = "";
+    updatePromptCounter();
+    document.getElementById("outputCard").style.display = "none";
+  }
+
+  const CURATED_PROMPTS = [
+    "An elderly watchmaker with weathered fingers examining the exposed gears of a brass mechanical chronometer under a focused workbench lamp in a dusty Swiss atelier",
+    "A rain-soaked street food chef tossing noodles over a flaming wok in a neon-lit Shinjuku alley at 2 AM with rising steam and damp pavement reflections",
+    "A weary female aerospace engineer in cleanroom jumpsuit inspecting carbon-composite heat tiles on a lunar lander module beneath intense overhead fluorescent grids",
+    "An introspective cellist rehearsing alone in the shadows of an empty cathedral with diagonal dust motes cutting through stained glass shafts",
+    "A rugged field botanist cataloging bioluminescent moss inside a misty Scandinavian fjord cavern during twilight",
+    "A tired investigative journalist reviewing handwritten documents across a cluttered walnut desk beside a rain-streaked window overlooking Chicago",
+    "A ceramicist centering damp terracotta clay on a spinning pottery wheel in a sun-drenched coastal workshop with dry clay dusting her forearms",
+    "A lone motorcycle courier resting on his vintage scrambler beside a misty mountain pass highway as morning fog rolls through pine canopies",
+    "A passionate vinyl record store owner sorting through crates of vintage jazz LPs in a dimly lit basement shop with golden warm lamp spill"
+  ];
+
+  function surpriseMe() {
+    playClick();
+    const pick = CURATED_PROMPTS[Math.floor(Math.random() * CURATED_PROMPTS.length)];
+    document.getElementById("userPrompt").value = pick;
+    updatePromptCounter();
+    showToast("Loaded Curated Masterpiece Scene");
+    handleSynthesize();
+  }
+
+  const KNOWLEDGE_BASE = {
+    cameras: {
+      leica_m11: {
+        name: "Leica M11 Rangefinder",
+        sensor: "60.3MP full-frame BSI CMOS sensor (no optical low-pass filter)",
+        lens: "Leica Summilux-M 50mm f/1.4 ASPH lens at f/1.8",
+        settings: "1/320s shutter speed, native ISO 200, uncompressed 14-bit DNG RAW",
+        optics: "tack-sharp central micro-contrast transitioning to smooth feathered falloff, zero computational artificial sharpness",
+        flare: "delicate internal spherical flare with subtle circular aperture ghosting on oblique highlight sources",
+        color: "natural Leica colorimetry with organic skin undertones, deep velvety blacks, and neutral highlight roll-off"
+      },
+      hasselblad_x2d: {
+        name: "Hasselblad X2D 100C Medium Format",
+        sensor: "100MP 43.8 x 32.9mm BSI CMOS sensor with 15 stops dynamic range",
+        lens: "Hasselblad XCD 55mm f/2.5 V lens at f/2.8",
+        settings: "1/500s leaf shutter, native ISO 100, 16-bit color depth",
+        optics: "sublime medium-format depth separation with lifelike spatial presence and zero distortion",
+        flare: "ultra-pure anti-reflective coated optics producing high contrast with minimal veiling glare",
+        color: "Hasselblad Natural Colour Solution (HNCS) with unmatched smooth tonal gradations across complex midtones"
+      },
+      sony_a7rv: {
+        name: "Sony Alpha 7R V",
+        sensor: "61.0MP Exmor R back-illuminated full-frame sensor",
+        lens: "Sony FE 85mm f/1.4 GM II lens at f/1.6",
+        settings: "1/400s shutter, ISO 160, Real-Time Subject Detection AI lock",
+        optics: "extreme resolving acuity resolving individual eyelash follicles, circular 11-blade aperture bokeh discs",
+        flare: "Nano AR Coating II effectively suppresses ghosting and internal flare",
+        color: "modern cinema neutral balance with crisp micro-contrast and accurate highlight separation"
+      },
+      arri_alexa: {
+        name: "ARRI Alexa Mini LF Cinema System",
+        sensor: "Large Format 4448 x 3096 ALEV 3 A2X CMOS sensor with dual gain architecture",
+        lens: "Cooke Anamorphic /i Full Frame Plus 40mm T2.3 anamorphic prime",
+        settings: "180-degree shutter angle (1/48s equivalent), EI 800, LogC3 gamma encoding",
+        optics: "classic 2.0x anamorphic horizontal oval bokeh, subtle barrel distortion bowing outer frame edges, breathing focus falloff",
+        flare: "warm horizontal anamorphic flare streaks and delicate cyan halation rings",
+        color: "legendary ARRI color science with gentle highlight rolloff and cinematic skin tone fidelity"
+      },
+      canon_r5: {
+        name: "Canon EOS R5",
+        sensor: "45MP full-frame Dual Pixel CMOS sensor",
+        lens: "Canon RF 50mm f/1.2L USM lens shot at f/1.4",
+        settings: "1/250s shutter speed, ISO 250, Canon Log 3 profile",
+        optics: "creamy, dreamlike background defocus with razor-thin focal slice on primary subject eyes",
+        flare: "soft warm radial haze when angled toward direct light sources",
+        color: "signature Canon warm color science with flattering skin undertones and rich golden hues"
+      },
+      iphone16_proraw: {
+        name: "Apple iPhone 16 Pro Max Handheld",
+        sensor: "48MP 1/1.28 inch quad-pixel sensor with sensor-shift OIS",
+        lens: "24mm equivalent f/1.78 main lens, 7-element optic",
+        settings: "1/60s handheld shutter, ISO 125, Apple ProRAW 48MP computational pipeline",
+        optics: "wide-angle 24mm perspective with slight barrel distortion along peripheral frame lines, close-range focus plane",
+        flare: "distinct multi-element sapphire lens reflection dots appearing opposite dominant light sources",
+        color: "Photonic Engine Smart HDR 5 tone mapping, subtle edge-sharpening micro-halos visible at 200% magnification"
+      },
+      polaroid_sx70: {
+        name: "Vintage Polaroid SX-70 Land Camera",
+        sensor: "Integral SX-70 instant chemical film pack",
+        lens: "116mm f/8 4-element glass lens, manual split-image rangefinder focus",
+        settings: "ambient electric eye exposure, ISO 160 instant chemical emulsion",
+        optics: "dreamy soft edge focus with characteristic chemical vignetting and gentle organic pincushion falloff",
+        flare: "nostalgic milky flare across dark quadrants, chemical spread variations along frame border",
+        color: "vintage cyan-amber chemical color shift, muted contrast, rich analog dye nostalgic warmth"
+      }
+    },
+
+    films: {
+      portra_400: "Kodak Professional Portra 400 35mm film stock, renowned for warm natural skin tones, smooth organic dye cloud grain, soft pastel highlight transitions, and subtle yellow-amber warmth in direct sidelight.",
+      cinestill_800t: "CineStill 800T tungsten-balanced motion picture film stock, displaying signature crimson red halation bleeding around specular light sources and exposed neon filaments, cool cyan shadow undertones, and moody nighttime cinematic contrast.",
+      fuji_superia: "Fujifilm Superia X-TRA 400 analog color negative, delivering signature cyan-green tinted shadow depths, punchy vibrant primary accents, fine crisp grain structure, and authentic documentary snapshot character.",
+      tri_x_400: "Kodak Tri-X 400 legendary monochrome silver halide film, featuring deep rich blacks, high-contrast micro-separation, classic tactile grain matrix, and timeless photojournalistic weight reminiscent of mid-century Magnum street archives.",
+      kodachrome_64: "Kodachrome 64 slide film aesthetic, exhibiting deep jewel-toned reds and oranges, rich contrasty blacks, archival saturated palette, and historic mid-century National Geographic photo essay fidelity.",
+      leica_monochrom: "Leica Monochrom pure luminance sensor output without Bayer color filter array, capturing pure photon counts with extreme edge sharpness, zero interpolation blur, and buttery micro-gradations from deep pitch black to brilliant specular white.",
+      digital_neutral: "Modern calibrated digital cinema color grading, displaying wide 16-bit dynamic latitude, neutral skin fidelity without color bias, linear shadow recovery, and pristine specular highlight roll-off."
+    },
+
+    lighting: {
+      golden_hour: "Illuminated by low-angle golden hour sunlight 18 minutes prior to sunset, casting long soft shadows at an 80-degree angle, with warm amber-honey sidelight wrapping around subject contours, slight blown-out specular highlights on metallic and moist edges, and gentle sun bleed along the frame perimeter.",
+      blue_hour: "Bathed in cool blue hour dusk lighting, where residual ultraviolet sky glow creates deep indigo-cyan ambient fill, contrasted against warm 2700K tungsten lamp glow spilling from nearby windows, creating a striking complementary color clash across faces and architecture.",
+      rembrandt: "Dramatic Rembrandt studio chiaroscuro lighting, where a single directional key light angled at 45 degrees creates a distinct luminous triangular patch of light under the shadow-side cheekbone, leaving the opposing hemisphere in deep sculpted shadow with rich falloff.",
+      volumetric: "Dramatic volumetric atmospheric illumination with dense diagonal light shafts (crepuscular god rays) slicing through airborne dust particles and suspended microscopic moisture motes, creating distinct luminous depth layers between foreground and background.",
+      neon_noir: "High-contrast cyberpunk neon noir lighting, illuminated by saturated electric magenta, cyan, and amber neon signage reflecting off damp, rain-slicked asphalt and glossy surfaces, with deep inky shadows punctuated by intense colored specular edge reflections.",
+      ambient_indoor: "Natural lived-in indoor ambient illumination, featuring a realistic mixed-color temperature conflict: warm 2800K domestic incandescent lamp light on one flank competing against cool 6000K diffuse overcast daylight filtering through an opposing window, with natural underexposure in room corners.",
+      candlelight: "Intimate candlelight illumination emitting warm 1850K amber-orange radiance, creating soft micro-flicker dynamics, tight two-stop-per-meter light falloff, and deep velvety shadows that wrap organically around tactile skin and table textures.",
+      harsh_sun: "Direct unsoftened midday zenith street lighting, casting stark, razor-edged dark shadows directly beneath brows, nose, and chin, with high contrast ratio, bleached highlights on exposed paving, and authentic unpolished documentary grit.",
+      overcast_soft: "Diffused overcast sky lighting behaving like an infinite softbox, casting virtually shadowless, wrap-around illumination with smooth low-contrast micro-tonal gradation and immaculate rendition of subtle textures and true surface colors.",
+      bioluminescent: "Ethereal bioluminescent ambient glow emitting soft turquoise and violet radiance from organic sources, casting delicate cool rim-lighting, glowing spore particles suspended in the air, and deep obsidian shadows."
+    },
+
+    shots: {
+      candid_handheld: "Captured with instinctive handheld framing, featuring a slight natural 1.2-degree horizon tilt and an off-center subject placement (deviating ~10% from the rule-of-thirds) that communicates an authentic, un-staged snapshot caught between formal moments.",
+      environmental_wide: "Framed as an expansive environmental wide composition, positioning the subject within their full architectural and spatial context across multiple layered depth planes, from soft foreground clutter to distant environmental horizons.",
+      tight_portrait: "Composed as an intimate 85mm psychological close-up portrait, framing from the clavicle up with shallow depth of field isolating facial micro-expressions while blurring the background into creamy, painterly abstraction.",
+      extreme_macro: "Framed as an extreme macro focal composition, zeroing in on microscopic textural details — individual iris fiber striations, textile weave threads, dust particles, and crystalline liquid droplets in stunning tactile relief.",
+      low_angle_hero: "Captured from a grounded low-angle perspective looking upward, accentuating height, scale, and narrative presence against the ceiling architecture and ambient overhead illumination.",
+      overhead_flatlay: "Shot from a direct 90-degree bird-eye overhead angle, arranging all scene elements in an organic, lived-in documentary flat lay with natural directional window sidelight revealing surface heights and textures.",
+      motion_panning: "Captured with a deliberate 1/15s shutter panning drag, freezing the core focal point of the moving subject with crisp acuity while streaking the background and foreground into energetic horizontal motion blur lines.",
+      silhouette_rim: "Composed as an intense backlit silhouette, where the subject forms a dark, evocative outline defined by a razor-thin luminous golden rim light hugging hair strands, shoulders, and garment edges.",
+      ots_cinema: "Framed as a cinematic over-the-shoulder perspective, with a softly defocused foreground shoulder and collar creating natural organic framing that pulls the viewer directly into the shared narrative space."
+    }
+  };
+
+  function synthesizeAutonomousPrompt(params) {
+    const rawInput = params.prompt.trim();
+    const cameraKey = params.camera || "leica_m11";
+    const filmKey = params.film || "portra_400";
+    const lightKey = params.lighting || "golden_hour";
+    const shotKey = params.shot || "candid_handheld";
+    const rawLevel = parseInt(params.rawLevel || "3", 10);
+    const ratio = params.ratio || "16:9";
+    const engine = params.engine || "midjourney";
+    const seed = params.seed || "";
+    const faceFeatures = params.faceFeatures || [];
+    const mustKeep = params.mustKeep || "";
+    const mustAvoid = params.mustAvoid || "";
+    const customNeg = params.customNeg || "";
+    const mode = params.mode || "narrative";
+
+    const cam = KNOWLEDGE_BASE.cameras[cameraKey] || KNOWLEDGE_BASE.cameras.leica_m11;
+    const film = KNOWLEDGE_BASE.films[filmKey] || KNOWLEDGE_BASE.films.portra_400;
+    const light = KNOWLEDGE_BASE.lighting[lightKey] || KNOWLEDGE_BASE.lighting.golden_hour;
+    const shot = KNOWLEDGE_BASE.shots[shotKey] || KNOWLEDGE_BASE.shots.candid_handheld;
+
+    const hasHuman = /(woman|man|girl|boy|person|people|elderly|child|face|portrait|worker|chef|musician|artist|soldier|dancer|model|figure|guy|lady|mechanic|tailor)/i.test(rawInput);
+
+    let grainDesc = "fine monochromatic luminance grain in midtones with clean highlights";
+    let aberrationDesc = "faint chromatic aberration with micro cyan-red fringing along highest contrast edge boundaries";
+    let vignetteDesc = "organic 14% vignetting falloff toward corners drawing focal gaze inwards";
+    let compTilt = "0.9-degree organic horizon tilt";
+
+    if (rawLevel === 1) {
+      grainDesc = "pristine, ultra-low noise floor with pristine smooth gradients and maximum sensor cleanliness";
+      aberrationDesc = "meticulously corrected optical aberrations with zero fringing across frame edges";
+      vignetteDesc = "minimal subtle optical falloff (<5%) with uniform illumination across corners";
+      compTilt = "precise, calibrated compositional alignment";
+    } else if (rawLevel === 2) {
+      grainDesc = "subtle natural film-like luminance grain texture adhering to exposure zones";
+      aberrationDesc = "micro-optical chromatic fringing visible only along peripheral hair-against-sky boundaries";
+      vignetteDesc = "natural lens vignetting (-0.7 EV in peripheral corners)";
+      compTilt = "1.1-degree casual horizon tilt communicating human hand presence";
+    } else if (rawLevel === 3) {
+      grainDesc = "tactile organic analog film grain matrix with authentic dye-cloud clustering in deep shadows";
+      aberrationDesc = "visible optical chromatic aberration with cyan and magenta fringing along high-contrast specular borders";
+      vignetteDesc = "pronounced natural 18-22% optical corner falloff and subtle barrel edge warping";
+      compTilt = "1.6-degree candid horizon deviation with rule-of-thirds offset";
+    } else if (rawLevel === 4) {
+      grainDesc = "gritty, high-ISO analog grain with luminance noise and authentic raw documentary grit";
+      aberrationDesc = "unfiltered raw lens aberration, slight flare ghosting, and edge-contrast chromatic split";
+      vignetteDesc = "heavy authentic mechanical vignetting and raw uncorrected peripheral distortion";
+      compTilt = "instinctive 2.2-degree snapshot tilt with accidental foreground framing obstruction";
+    }
+
+    let humanLayer = "";
+    if (hasHuman) {
+      humanLayer = "Human physical reality is captured with surgical, unposed authenticity: natural facial asymmetry is present, with one eye resting approximately 1.5mm lower than the other and a slight 0.8-degree deviation in the nasal bridge. Skin micro-texture is rendered with lifelike tactility — visible epidermal pores across the nose bridge and T-zone, fine peach fuzz (velus hair) catching angled sidelight along the jawline, delicate sebum sheen across the forehead, and subtle natural redness pooled at the alar base of the nostrils. Beneath the lower eyelids, gentle cerulean and lavender venous undertones follow the orbital bone rim alongside fine morning micro-crepiness. Hair exhibits organic disorder with 3–5 individual rogue flyaway strands separating from the hairline and catching rim-light, baby hairs wisped against the temples, and an authentic natural growth cowlick. Posture avoids symmetrical staging — body weight is casually shifted onto one leg, creating subtle shoulder height asymmetry, while relaxed hands display delicate knuckle skin wrinkling and blue vein branching beneath the skin. Garment textiles (linen, wool, or cotton) pull naturally at the shoulders and elbows with organic tension creases radiating outward.";
+    }
+
+    let envLayer = "The scene unfolds across four distinct depth zones: Zone 1 consists of a soft, completely out-of-focus foreground framing element introducing layered depth; Zone 2 anchors the primary sharp focal plane where the subject commands tack-sharp resolving power; Zone 3 displays contextual lived-in midground elements — tactile surfaces exhibiting genuine wear, dust motes dancing in diagonal light beams, fingerprint smudges on reflective glass, and subtle scuff marks on floors; Zone 4 recedes into a deep, beautifully defocused background with buttery circular bokeh balls generated from distant point light sources.";
+
+    let optLayer = "Captured using a " + cam.name + " equipped with a " + cam.sensor + " paired with a " + cam.lens + ". Settings recorded at " + cam.settings + ". The optical rendition exhibits " + cam.optics + ", accompanied by " + aberrationDesc + ", " + vignetteDesc + ", and " + cam.flare + ". Exposure captures " + film + " Color rendering displays " + cam.color + ", balanced with " + grainDesc + ". Composition features " + compTilt + " and " + shot + ".";
+
+    let faceBlueprint = "";
+    if (faceFeatures && faceFeatures.length > 0) {
+      const labels = faceFeatures.map(f => f.replace(/_/g, " ")).join(", ");
+      faceBlueprint = "\n\nCRITICAL FACE REFERENCE BLUEPRINT: The user will attach an external reference photo in the generation tool. You MUST treat the attached reference image as an immutable blueprint, rigorously matching the following facial characteristics: " + labels + ". Preserve the exact bone structure, iris catchlights, lip volume, and unique asymmetry from the reference image without alteration.";
+    }
+
+    let constraintsNote = "";
+    if (mustKeep) constraintsNote += " Non-negotiable visual anchors: " + mustKeep + ".";
+    if (mustAvoid) constraintsNote += " Explicitly avoid aesthetic contaminants: " + mustAvoid + ".";
+
+    if (mode === "narrative") {
+      let subSurfaceLayer = hasHuman ? "Subsurface light scattering (SSS) produces a subtle, warm amber-red translucency through the earlobes, nostrils, and outer edges of the fingers where backlight penetrates the capillary-rich dermis, preventing any plastic or waxy skin appearance. Micro-specular reflections catch the natural moisture layer of the cornea and tear ducts, reflecting the primary environmental light source with anatomical accuracy." : "Surface material physics are rendered with tangible reality: micro-scratches, uneven oxidation patina, subtle tactile abrasion, and microscopic dust settling into recesses give every physical element weight and historical presence.";
+
+      let sensorPhysicsLayer = "The sensor readout dynamics preserve the entire 15-stop luminance spectrum without harsh digital clipping — deep shadows hold rich discernible textures rather than muddy crush, while bright highlights roll off gracefully into soft pastel halation. Subtle monochromatic luminance noise clusters organically across the underexposed mid-tones, echoing classic high-resolution chemical emulsion without artificial digital noise artifacts.";
+
+      let temporalLayer = "The composition captures a fleeting, unposed micro-moment frozen in time: dust motes drift across angled light beams, fabric micro-folds reflect natural physical gravity and movement, and the scene breathes with spatial authenticity as though lifted directly from a prestigious Magnum Photos documentary essay or an award-winning 35mm cinematic still.";
+
+      let narrative = "A masterwork photographic capture of " + rawInput + ". " + light + " " + optLayer + " " + humanLayer + " " + subSurfaceLayer + " " + envLayer + " " + sensorPhysicsLayer + " " + temporalLayer + " The visual atmosphere conveys an unrepeatable slice-of-life reality, completely devoid of artificial CGI sheen, airbrushed plastic skin, or synthetic symmetry. Surface textures vibrate with tangible tactile quality, from microscopic fiber threads to subtle condensation and atmospheric haze. The overall mood is grounded, visceral, and deeply cinematic, feeling like a found documentary photograph from a master archive rather than a generated image." + faceBlueprint + constraintsNote;
+
+      if (engine === "midjourney") {
+        narrative += " --ar " + ratio + " --style raw --v 6.1 --q 2";
+        if (seed) narrative += " --seed " + seed;
+      } else if (engine === "flux") {
+        narrative += " --ar " + ratio + " --guidance 7.5 --steps 40";
+        if (seed) narrative += " --seed " + seed;
+      } else if (engine === "sdxl") {
+        narrative += ", 8k uhd, master photography, raw photo, " + ratio + " aspect ratio";
+        if (seed) narrative += ", seed: " + seed;
+      } else if (engine === "dalle3") {
+        narrative += " [Aspect ratio: " + ratio + ". Unfiltered RAW photographic quality. No CGI.]";
+      }
+      return narrative;
+    }
+
+    if (mode === "parameter") {
+      const sppObj = {
+        meta: {
+          generator: "PromptNova Pro Ultra",
+          version: "2.0-ZeroAPI",
+          realism_index: "99.7%",
+          target_platform: engine,
+          aspect_ratio: ratio,
+          seed: seed || Math.floor(Math.random() * 9999999)
+        },
+        scene: {
+          concept: rawInput,
+          shot_composition: shotKey,
+          atmosphere_physics: lightKey,
+          horizon_tilt_degrees: rawLevel === 4 ? 2.2 : (rawLevel === 3 ? 1.6 : 0.9),
+          depth_planes: {
+            foreground: "Zone 1: blurred foreground framing element, organic occlusion",
+            subject_plane: "Zone 2: primary tack-sharp focal boundary",
+            midground: "Zone 3: contextual lived-in clutter, surface scuffs, dust motes",
+            background: "Zone 4: deep optical bokeh circles with smooth color falloff"
+          }
+        },
+        camera_hardware: {
+          system: cam.name,
+          sensor_architecture: cam.sensor,
+          optic_lens: cam.lens,
+          exposure_settings: cam.settings,
+          optical_imperfections: {
+            chromatic_aberration: aberrationDesc,
+            vignetting: vignetteDesc,
+            lens_flare: cam.flare,
+            grain_matrix: grainDesc
+          },
+          film_color_science: film
+        },
+        subject_truth: {
+          present: hasHuman,
+          anatomical_asymmetry: hasHuman ? "1.5mm vertical eye disparity, 0.8-degree nasal bridge deviation" : "natural organic structural wear",
+          skin_micro_texture: hasHuman ? "epidermal pores on T-zone, cheek peach fuzz in sidelight, subtle alar redness" : "N/A",
+          hair_details: hasHuman ? "3-5 stray flyaway hairs catching rim-light, baby hairs, natural cowlick" : "N/A",
+          posture_and_wardrobe: hasHuman ? "unposed asymmetric hip weight shift, relaxed hand with visible vein branching, organic fabric tension wrinkles" : "weathered tactile surfaces with physical patina"
+        },
+        lighting_and_optics: {
+          key_light: light,
+          color_temperature: "mixed Kelvin conflict between warm interior and cool ambient",
+          shadow_dynamics: "deep textured falloff with bounce-light color reflection"
+        },
+        face_matching: faceFeatures.length > 0 ? {
+          enabled: true,
+          match_attributes: faceFeatures
+        } : { enabled: false },
+        constraints: {
+          must_keep: mustKeep ? mustKeep.split(",").map(s => s.trim()) : ["natural lighting", "surface micro-textures"],
+          must_avoid: mustAvoid ? mustAvoid.split(",").map(s => s.trim()) : ["plastic skin", "CGI gloss", "airbrushing", "symmetrical perfection"]
+        },
+        negative_prompt: [
+          "ugly", "deformed", "symmetrical face", "plastic skin", "airbrushed", 
+          "CGI", "3d render", "uncanny valley", "watermark", "text overlay", 
+          "cropped", "low resolution", "studio lighting", "doll-like"
+        ]
+      };
+      return JSON.stringify(sppObj, null, 2);
+    }
+
+    if (mode === "engine_syntax") {
+      const coreTokens = [
+        rawInput,
+        "shot on " + cam.name,
+        cam.lens,
+        filmKey !== "digital_neutral" ? filmKey.replace(/_/g, " ") : "natural cinema grade",
+        lightKey.replace(/_/g, " "),
+        shotKey.replace(/_/g, " "),
+        "RAW photo",
+        "hyper-detailed 8k",
+        "natural skin micro-pores",
+        "photographic optical grain",
+        "candid slice of life",
+        "authentic human imperfection"
+      ];
+      if (mustKeep) coreTokens.push(mustKeep);
+
+      if (engine === "midjourney") {
+        let mj = coreTokens.join(", ") + " --ar " + ratio + " --style raw --v 6.1 --q 2";
+        if (seed) mj += " --seed " + seed;
+        return mj;
+      } else if (engine === "flux") {
+        let fx = coreTokens.join(", ") + " --ar " + ratio + " --guidance 7.5 --steps 40";
+        if (seed) fx += " --seed " + seed;
+        return fx;
+      } else if (engine === "sdxl") {
+        let sd = coreTokens.join(", ") + ", masterpiece, best quality, ultra-detailed, " + ratio + " format";
+        if (seed) sd += ", seed: " + seed;
+        return sd;
+      } else {
+        return coreTokens.join(", ") + " (Aspect: " + ratio + ")";
+      }
+    }
+
+    if (mode === "negative") {
+      const baseNegatives = [
+        "plastic skin", "airbrushed", "cgi render", "3d model", "synthetic sheen",
+        "over-sharpened", "perfect symmetry", "porcelain doll face", "uncanny valley",
+        "extra limbs", "floating fingers", "deformed pupils", "blurry eyes",
+        "watermark", "signature", "text", "low quality jpeg artifacts",
+        "studio flash glare", "amateur lighting", "cartoon illustration"
+      ];
+      if (customNeg) {
+        customNeg.split(",").forEach(term => {
+          if (term.trim()) baseNegatives.unshift(term.trim());
+        });
+      }
+      return baseNegatives.join(", ");
+    }
+
+    return "";
+  }
+
+  function handleSynthesize() {
+    playClick();
+    const promptInput = document.getElementById("userPrompt").value.trim();
+    if (!promptInput) {
+      showToast("Please enter a prompt vision first!");
+      document.getElementById("userPrompt").focus();
+      return;
+    }
+
+    const btn = document.getElementById("synthesizeBtn");
+    btn.innerHTML = "<span>⚡</span><span>Synthesizing Photographic Physics...</span>";
+    btn.disabled = true;
+
+    setTimeout(() => {
+      const faceFeatures = [...document.querySelectorAll("#faceChecks input:checked")].map(i => i.value);
+
+      const params = {
+        prompt: promptInput,
+        camera: document.getElementById("cameraSelect").value,
+        film: document.getElementById("filmSelect").value,
+        lighting: getActiveChipValue("lightingChips"),
+        shot: getActiveChipValue("shotChips"),
+        rawLevel: document.getElementById("rawSlider").value,
+        ratio: document.getElementById("ratioSelect").value,
+        engine: document.getElementById("engineSelect").value,
+        seed: document.getElementById("seedInput").value.trim(),
+        faceFeatures: faceFeatures,
+        mustKeep: document.getElementById("mustKeep").value.trim(),
+        mustAvoid: document.getElementById("mustAvoid").value.trim(),
+        customNeg: document.getElementById("customNeg").value.trim(),
+        mode: currentMode
+      };
+
+      const result = synthesizeAutonomousPrompt(params);
+      lastSynthesizedPrompt = result;
+
+      const outBox = document.getElementById("outputBox");
+      outBox.textContent = result;
+      if (currentMode === "parameter") {
+        outBox.classList.add("json-code");
+      } else {
+        outBox.classList.remove("json-code");
+      }
+
+      const wordCount = result.trim().split(/\s+/).length;
+      document.getElementById("wordCountPill").innerHTML = "<span>📝</span> " + wordCount + " Words";
+      document.getElementById("tokenEstimatePill").innerHTML = "<span>⚡</span> ~" + Math.round(wordCount * 1.35) + " Tokens";
+      document.getElementById("enginePill").innerHTML = "<span>🎯</span> " + params.engine.toUpperCase();
+
+      const card = document.getElementById("outputCard");
+      card.style.display = "block";
+      card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+      addToHistory(promptInput, result, currentMode, params.engine);
+
+      btn.innerHTML = "<span>✨</span><span>Synthesize Masterpiece Prompt</span><span style=\"font-size: 11px; opacity: 0.8; font-weight: 500;\">(Instant · Zero-API)</span>";
+      btn.disabled = false;
+      playSuccess();
+    }, 100);
+  }
+
+  function generateMatrix() {
+    playClick();
+    const promptInput = document.getElementById("userPrompt").value.trim() || "A lone traveler at a rain-swept mountain overlook during twilight";
+
+    const v1 = synthesizeAutonomousPrompt({
+      prompt: promptInput,
+      camera: "leica_m11",
+      film: "portra_400",
+      lighting: "ambient_indoor",
+      shot: "candid_handheld",
+      rawLevel: "4",
+      ratio: "16:9",
+      engine: "midjourney",
+      mode: "narrative"
+    });
+
+    const v2 = synthesizeAutonomousPrompt({
+      prompt: promptInput,
+      camera: "canon_r5",
+      film: "cinestill_800t",
+      lighting: "golden_hour",
+      shot: "environmental_wide",
+      rawLevel: "3",
+      ratio: "3:2",
+      engine: "flux",
+      mode: "narrative"
+    });
+
+    const v3 = synthesizeAutonomousPrompt({
+      prompt: promptInput,
+      camera: "arri_alexa",
+      film: "digital_neutral",
+      lighting: "rembrandt",
+      shot: "ots_cinema",
+      rawLevel: "2",
+      ratio: "21:9",
+      engine: "midjourney",
+      mode: "narrative"
+    });
+
+    document.getElementById("matrixCard1").textContent = v1;
+    document.getElementById("matrixCard2").textContent = v2;
+    document.getElementById("matrixCard3").textContent = v3;
+
+    showToast("3-Way Variation Matrix Rendered");
+    playSuccess();
+  }
+
+  function copyMatrixCard(num) {
+    playClick();
+    const text = document.getElementById("matrixCard" + num).textContent;
+    copyToClipboard(text);
+    showToast("Copied Variation " + num + " to Clipboard");
+  }
+
+  function loadHistory() {
+    try {
+      const saved = localStorage.getItem("promptnova_ultra_history");
+      if (saved) {
+        promptHistory = JSON.parse(saved);
+        updateHistoryBadge();
+      }
+    } catch(e) {}
+  }
+
+  function addToHistory(input, output, mode, engine) {
+    const item = {
+      id: Date.now(),
+      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      input: input,
+      output: output,
+      mode: mode,
+      engine: engine,
+      favorite: false
+    };
+    promptHistory.unshift(item);
+    if (promptHistory.length > 50) promptHistory.pop();
+    try {
+      localStorage.setItem("promptnova_ultra_history", JSON.stringify(promptHistory));
+    } catch(e) {}
+    updateHistoryBadge();
+  }
+
+  function updateHistoryBadge() {
+    document.getElementById("historyCount").textContent = promptHistory.length;
+  }
+
+  function renderHistory() {
+    const container = document.getElementById("historyContainer");
+    if (promptHistory.length === 0) {
+      container.innerHTML = "<p style=\"color: var(--text3); font-size: 13px; text-align: center; padding: 40px 0;\">No archived prompts yet. Synthesize your first prompt to store it here.</p>";
+      return;
+    }
+    container.innerHTML = "";
+    promptHistory.forEach((item, index) => {
+      const div = document.createElement("div");
+      div.className = "history-item";
+      div.innerHTML = `
+        <div class="history-main">
+          <div class="history-meta">
+            <span>🕒 ${item.timestamp}</span>
+            <span>•</span>
+            <span style="text-transform: uppercase; color: var(--accent2);">${item.mode}</span>
+            <span>•</span>
+            <span style="text-transform: uppercase;">${item.engine}</span>
+          </div>
+          <div class="history-snippet"><strong>${item.input}</strong></div>
+        </div>
+        <div class="history-actions">
+          <button class="mini-action-btn" onclick="restoreFromHistory(${index})">↩ Load</button>
+          <button class="mini-action-btn" onclick="copyFromHistory(${index})">📋 Copy</button>
+          <button class="mini-action-btn" style="color: var(--rose);" onclick="deleteFromHistory(${index})">✕</button>
+        </div>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  function restoreFromHistory(index) {
+    playClick();
+    const item = promptHistory[index];
+    if (!item) return;
+    document.getElementById("userPrompt").value = item.input;
+    updatePromptCounter();
+    setMode(item.mode);
+    document.getElementById("outputBox").textContent = item.output;
+    document.getElementById("outputCard").style.display = "block";
+    switchTab("studio");
+    showToast("Loaded prompt from history");
+  }
+
+  function copyFromHistory(index) {
+    playClick();
+    const item = promptHistory[index];
+    if (item) {
+      copyToClipboard(item.output);
+      showToast("Copied history item to clipboard");
+    }
+  }
+
+  function deleteFromHistory(index) {
+    playClick();
+    promptHistory.splice(index, 1);
+    try {
+      localStorage.setItem("promptnova_ultra_history", JSON.stringify(promptHistory));
+    } catch(e) {}
+    updateHistoryBadge();
+    renderHistory();
+  }
+
+  function clearAllHistory() {
+    playClick();
+    if (confirm("Clear all archived prompts?")) {
+      promptHistory = [];
+      try { localStorage.removeItem("promptnova_ultra_history"); } catch(e) {}
+      updateHistoryBadge();
+      renderHistory();
+      showToast("History Cleared");
+    }
+  }
+
+  function saveCurrentToFavorites() {
+    playClick();
+    showToast("Saved to Favorites ⭐");
+  }
+
+  function copyToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+    } else {
+      fallbackCopy(text);
+    }
+  }
+
+  function fallbackCopy(text) {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try { document.execCommand("copy"); } catch(e) {}
+    document.body.removeChild(ta);
+  }
+
+  function copyMainOutput() {
+    playClick();
+    const text = document.getElementById("outputBox").textContent;
+    if (!text) return;
+    copyToClipboard(text);
+    const btn = document.getElementById("copyMainBtn");
+    btn.innerHTML = "<span>✓</span> Copied!";
+    btn.classList.add("copied");
+    showToast("Copied Prompt to Clipboard!");
+    setTimeout(() => {
+      btn.innerHTML = "<span>📋</span> Copy Prompt";
+      btn.classList.remove("copied");
+    }, 2000);
+  }
+
+  function exportPrompt() {
+    playClick();
+    const text = document.getElementById("outputBox").textContent;
+    if (!text) return;
+    const isJson = currentMode === "parameter";
+    const blob = new Blob([text], { type: isJson ? "application/json" : "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = isJson ? "promptnova_spec.json" : "promptnova_prompt.txt";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast("Exported Prompt File");
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById("toastBox");
+    t.textContent = msg;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 2200);
+  }
+
+  function saveCloudSettings() {
+    playClick();
+    const provider = document.getElementById("cloudProvider").value;
+    const key = document.getElementById("cloudApiKey").value.trim();
+    localStorage.setItem("promptnova_cloud_provider", provider);
+    if (key) localStorage.setItem("promptnova_cloud_key", key);
+    showToast("Engine Settings Saved");
+  }
+
+  window.addEventListener("keydown", e => {
+    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+      e.preventDefault();
+      handleSynthesize();
+    }
+    if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+      e.preventDefault();
+      clearPrompt();
+    }
+  });
+
+  window.addEventListener("DOMContentLoaded", () => {
+    loadHistory();
+    updateSliderBadge();
+    updatePromptCounter();
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js")
+        .then(reg => console.log("PromptNova Ultra SW Registered", reg.scope))
+        .catch(err => console.log("SW note:", err));
+    }
+  });
+</script>
+</body>
+</html>
